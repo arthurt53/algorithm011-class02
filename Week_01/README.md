@@ -125,6 +125,22 @@ def remove(self, idx):
 ### 3、优先队列（Priority Queue）  
 * 特性：按元素的优先级取出  
 * 添加（时间复杂度O(1)）；取出（时间复杂度O(log n））；查询（时间复杂度O(n)）  
+* 调用：  
+`from heapq import *`
+* 新建队列：  
+`heapify(x)  #将列表x转换成堆`
+* 添加元素：  
+```
+heappush(heap,a)        #将元素a加入 heap 中，并保持堆的不变性
+heapreplace(heap,a)     #取出并返回 heap 中的最小元素，同时将元素a加入heap中，堆的大小不变
+```
+* 取出元素：  
+```
+heappop(heap)           #取出并返回 heap 的最小的元素，保持堆的不变性
+heappushpop(heap,a)     #将元素a放入堆中，然后取出并返回 heap 的最小元素
+* 查询：  
+`heap[n]      #查询优先队列中索引号为n的元素`  
+```
 ### 4、双端队列（Deque）  
 * 特性：两端均可进出  
 * 添加/取出（时间复杂度O(1)）；查询（时间复杂度O(n)）  
