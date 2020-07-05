@@ -281,6 +281,41 @@ class MaxHeap:
                     current_id = child_id_left
                     child_id_left = current_id * 2 + 1
                     child_id_right = current_id * 2 + 2
+```
+#### 堆排序：    
+*每次通过构建大顶堆的方式产出最大值，并放在数列的最后*  
+```
+def heapify(arr, n, i): 	#构建大顶堆
+    largest = i # Initialize largest as root 
+    l = 2 * i + 1     # left = 2*i + 1 
+    r = 2 * i + 2     # right = 2*i + 2 
+  
+    # See if left child of root exists and is greater than root 
+    if l < n and arr[i] < arr[l]: 
+        largest = l 
+  
+    # See if right child of root exists and is greater than root 
+    if r < n and arr[largest] < arr[r]: 
+        largest = r 
+  
+    # Change root, if needed 
+    if largest != i: 
+        arr[i],arr[largest] = arr[largest],arr[i] # swap 
+  
+        # Heapify the root. 
+        heapify(arr, n, largest) 
+
+def heapSort(arr): 		# 堆排序
+    n = len(arr) 
+  
+    # 循环构建大顶堆
+    for i in range(n//2 - 1, -1, -1): 
+        heapify(arr, n, i) 
+  
+    # 逐一提取元素
+    for i in range(n-1, 0, -1): 
+        arr[i], arr[0] = arr[0], arr[i] # 交换元素
+        heapify(arr, i, 0) 
 
 ```
 ### 3、图（Graph）  
