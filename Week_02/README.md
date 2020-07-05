@@ -55,8 +55,8 @@ class TreeNode:
     self.val = val
     self.left,self.right = None, None
 ```
-* 树的遍历：
-前序遍历（根、左、右）：  
+* 树的遍历：  
+（1）前序遍历（根、左、右）：  
 ```
 # 递归
 def preorderTraversal(self, root):
@@ -84,7 +84,7 @@ def preorderTraversal(self, root):
       stack.append(node.left)
     return res
 ```
-中序遍历（左、根、右）：  
+（2）中序遍历（左、根、右）：  
 ```
 # 递归
 def inorderTraversal(self, root):
@@ -113,7 +113,7 @@ def inorderTraversal(self, root):
     cur = cur.right
   return res
 ```
-后序遍历（左、右、根）：  
+（3）后序遍历（左、右、根）：  
 ```
 # 递归
 def postorderTraversal(self, root):
@@ -217,15 +217,76 @@ def delNode(self, root, val):
 ### 2、堆（Heap）  
 * 特性：可以迅速找到一堆数中的最大值或最小值  
 * 常见的堆：二叉堆、斐波那契堆  
+* 二叉堆：通过完全二叉树来实现，同时满足根节点始终大于/小于子节点【采用一位数组】  
+#### 索引：  
+（1）索引为i的左子节点的索引为2i + 1  
+（2）索引为i的右子节点的索引为2i + 2  
+（3）索引为i的左子节点的索引为(i - 1) // 2
+#### 操作：  
 * findmax（O(1)）  
 * deletemax（O(log n)）  
 * insert（O(log n)-二叉堆或O(1)-斐波那契堆）  
-* 二叉堆：通过完全二叉树【一位数组】来实现（根节点始终大于/小于子节点）  
-（1） 索引为i的左子节点的索引为2i + 1  
-（2） 索引为i的右子节点的索引为2i + 2  
-（3） 索引为i的左子节点的索引为floor((i - 1) / 2)  
+* 实现代码：  
+```
+class MaxHeap:
+    heap = []
+ 
+    def insert(num):
+        MaxHeap.heap.append(num)	# 将数加入最大堆的末位
+        MaxHeap.shift_up()		# 向上更新元素
+ 
+    def shift_up():
+        current_id = len(MaxHeap.heap) - 1
+        parent_id = (current_id - 1)//2
+        while current_id > 0:
+            if MaxHeap.heap[parent_id] >= MaxHeap.heap[current_id]:
+                break
+            else:
+                MaxHeap.heap[parent_id], MaxHeap.heap[current_id] = MaxHeap.heap[current_id], MaxHeap.heap[parent_id]
+                current_id = parent_id
+                parent_id = (current_id -1)//2
+
+    def delete(num):
+        temp = MaxHeap.heap.pop()	# 取出堆的最后一个数
+        ind = MaxHeap.heap.index(num)	# 删除num，但索引位置不变
+        MaxHeap.heap[ind] = temp	# 将取出的最后一个数填入该索引位
+        MaxHeap.shift_down(ind)		# 向下更新元素
+ 
+    def shift_down(ind):
+        current_id = ind
+        child_id_left = current_id * 2 + 1
+        child_id_right = current_id * 2 + 2
+        while current_id < len(MaxHeap.heap) - 1:
+            #如果当前节点为叶子节点，shift_down完成
+            if current_id * 2 + 1 > len(MaxHeap.heap) - 1:
+                break
+            #如果当前节点只有左孩子没有右孩子
+            if current_id * 2 + 1 == len(MaxHeap.heap) - 1:
+                if MaxHeap.heap[current_id] > MaxHeap.heap[-1]:
+                    break
+                else:
+                    MaxHeap.heap[current_id], MaxHeap.heap[-1] = MaxHeap.heap[-1], MaxHeap.heap[current_id]
+                    break
+            #如果当前节点既有左孩子又有右孩子
+            if MaxHeap.heap[current_id] > max(MaxHeap.heap[child_id_left], MaxHeap.heap[child_id_right]):
+                break
+            else:
+                if MaxHeap.heap[child_id_right] > MaxHeap.heap[child_id_left]:
+                    MaxHeap.heap[child_id_right], MaxHeap.heap[current_id] = MaxHeap.heap[current_id], MaxHeap.heap[child_id_right]
+                    current_id = child_id_right
+                    child_id_left = current_id * 2 + 1
+                    child_id_right = current_id * 2 + 2
+                else:
+                    MaxHeap.heap[child_id_left], MaxHeap.heap[current_id] = MaxHeap.heap[current_id], MaxHeap.heap[child_id_left]
+                    current_id = child_id_left
+                    child_id_left = current_id * 2 + 1
+                    child_id_right = current_id * 2 + 2
+
+```
 ### 3、图（Graph）  
 * 与树的差异：看是否有环，有环的是图，没环的是数  
+* 基本构成元素：点（度-连接多少边）、边（权重）  
+* 表达形式：邻接矩阵、邻接表（链表实现）
 ## 三、复杂度总结
 |      | 访问  | 搜索  | 新增  | 删除  |  空间复杂度  |
 |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |
