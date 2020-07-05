@@ -297,3 +297,6 @@ class MaxHeap:
 | 栈  |   O(n)  |  O(n)  |  O(1)  |  O(1)  |  O(n)  |
 | 队列  |   O(n)  |  O(n)  |  O(1)  |  O(1)  |  O(n)  |
 | 双端队列  |   O(n)  |  O(n)  |  O(1)  |  O(log(n))  |  O(n)  |
+| 哈希表  |   N/A  |  O(1)  |  O(1)  |  O(1)  |  O(n)  |
+| 二叉搜索树  |   O(log(n))  |  O(log(n))  |  O(log(n))  |  O(log(n))  |  O(n)  |
+| 二叉堆  |  O(1) |  O(1)（搜索最大/最小值）  |  O(log(n))  |  O(log(n))  |  O(n)  |
