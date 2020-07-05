@@ -287,7 +287,7 @@ class MaxHeap:
 * 与树的差异：看是否有环，有环的是图，没环的是数  
 * 基本构成元素：点（度-连接多少边）、边（权重）  
 * 表达形式：邻接矩阵、邻接表（链表实现）  
-!(https://github.com/arthurt53/Graph_hub/blob/master/Graph.png)
+![image](https://github.com/arthurt53/Graph_hub/blob/master/Graph.png)
 ## 三、复杂度总结
 |      | 访问  | 搜索  | 新增  | 删除  |  空间复杂度  |
 |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |  :----:  |
