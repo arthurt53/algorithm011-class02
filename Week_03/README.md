@@ -88,8 +88,6 @@ def divide_conquer(problem, param1, param2, ...):
 	
   # revert the current level states
 ```
-#### 常见问题及解法  
-
 ### （三）回溯  
 * 不断在递归的每一层尝试解决问题，最终得到答案  
 * 常用场景：N皇后问题、数独问题  
