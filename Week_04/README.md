@@ -266,7 +266,3 @@ class Solution:
                 right = mid                     # 因为中值 < 右值，中值也可能是最小值，右边界只能取到mid处
         return nums[left]                       # 循环结束，left == right，最小值输出nums[left]或nums[right]均可
 ```
-* 使用二分查找，寻找一个半有序数组 [4, 5, 6, 7, 0, 1, 2] 中间无序的地方  
-```
-class
-```
