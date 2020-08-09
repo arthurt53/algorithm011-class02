@@ -41,7 +41,31 @@ class Trie(object):
 		return True
 ```
 ### 5、常见问题解法  
+* 单词搜索2  
+```
+    def findWords(self, board: List[List[str]], words: List[str]) -> List[str]:
+        trie = {}  # 构造字典树
+        for word in words:
+            node = trie
+            for char in word:
+                node = node.setdefault(char, {})
+            node['#'] = True
 
+        def search(i, j, node, pre, visited):  # (i,j)当前坐标，node当前trie树结点，pre前面的字符串，visited已访问坐标
+            if '#' in node:  # 已有字典树结束
+                res.add(pre)  # 添加答案
+            for (di, dj) in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                _i, _j = i+di, j+dj
+                if -1 < _i < h and -1 < _j < w and board[_i][_j] in node and (_i, _j) not in visited:  # 可继续搜索
+                    search(_i, _j, node[board[_i][_j]], pre+board[_i][_j], visited | {(_i, _j)})  # dfs搜索
+
+        res, h, w = set(), len(board), len(board[0])
+        for i in range(h):
+            for j in range(w):
+                if board[i][j] in trie:  # 可继续搜索
+                    search(i, j, trie[board[i][j]], board[i][j], {(i, j)})  # dfs搜索
+        return list(res)
+```
 ## 二、并查集  
 ### 1、适用场景  
 * 组团、配队问题，即判断两个个体是否是一个群组的问题  
@@ -68,17 +92,185 @@ def parent(self, p, i):
 		x = i; i = p[i]; p[x] = root 
 	return root
 ```
+## 4、常见问题解法  
+* 朋友圈  
+```
+class Solution:
+    def findCircleNum(self, M) -> int:
+        father = [i for i in range(len(M))]
 
+        def find(a):
+            if father[a] != a: father[a] = find(father[a])
+            return father[a]
+
+        def union(a, b):
+            father[find(b)] = find(a)
+            return find(b)
+
+        for a in range(len(M)):
+            for b in range(a):
+                if M[a][b]: union(a, b)
+        for i in range(len(M)): find(i)
+        return len(set(father))
+```
+* 被围绕的区域  
+```
+class Solution:
+    def solve(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        f = {}
+        def find(x):
+            f.setdefault(x, x)
+            if f[x] != x:
+                f[x] = find(f[x])
+            return f[x]
+        def union(x, y):
+            f[find(y)] = find(x)
+
+        if not board or not board[0]:
+            return
+        row = len(board)
+        col = len(board[0])
+        dummy = row * col
+        for i in range(row):
+            for j in range(col):
+                if board[i][j] == "O":
+                    if i == 0 or i == row - 1 or j == 0 or j == col - 1:
+                        union(i * col + j, dummy)
+                    else:
+                        for x, y in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                            if board[i + x][j + y] == "O":
+                                union(i * col + j, (i + x) * col + (j + y))
+        for i in range(row):
+            for j in range(col):
+                if find(dummy) == find(i * col + j):
+                    board[i][j] = "O"
+                else:
+                    board[i][j] = "X"
+```
 ## 三、高级搜索  
 *相对朴素搜索的优化方向：不重复、剪枝* 
 ### 1、剪枝  
 * 在对状态树进行搜索时，将一些已计算或一些不够好的节点进行剪枝，从而提升搜索效率  
 ### （1）常见问题解法  
+* 解数独  
+```
+class Solution:
+    def __init__(self):
+        self.rows = None
+        self.cols = None
+        # 表示3x3的小宫格
+        self.spaces = None
+        # 标志是否完成
+        self.flag = None
 
+    def solveSudoku(self, board) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        self.rows = [[0] * 10 for _ in range(9)]
+        self.cols = [[0] * 10 for _ in range(9)]
+        self.spaces = [[0] * 10 for _ in range(9)]
+        self.flag = False
+
+        # 预处理已经在数独中的元素
+        for i in range(9):
+            for j in range(9):
+                if board[i][j] != '.':
+                    num = int(board[i][j])
+                    self.rows[i][num] = 1
+                    self.cols[j][num] = 1
+                    self.spaces[self.validate(i, j)][num] = 1
+        self.dfs(board, 0, 0)
+
+    def dfs(self, board, x, y):
+        if x == 9:
+            self.flag = True
+            return
+
+        if board[x][y] != '.':
+            if y == 8:
+                self.dfs(board, x + 1, 0)
+            else:
+                self.dfs(board, x, y + 1)
+        else:
+            for num in range(1, 10):
+                if self.rows[x][num] == 1:
+                    continue
+                if self.cols[y][num] == 1:
+                    continue
+                if self.spaces[self.validate(x, y)][num] == 1:
+                    continue
+                board[x][y] = str(num)
+                self.rows[x][num] = 1
+                self.cols[y][num] = 1
+                self.spaces[self.validate(x, y)][num] = 1
+                if y == 8:
+                    self.dfs(board, x + 1, 0)
+                else:
+                    self.dfs(board, x, y + 1)
+                if self.flag:
+                    return
+                board[x][y] = '.'
+                self.rows[x][num] = 0
+                self.cols[y][num] = 0
+                self.spaces[self.validate(x, y)][num] = 0
+
+    def validate(self, x, y):
+        if 0 <= x < 3:
+            if 0 <= y < 3:
+                return 0
+            elif 3 <= y < 6:
+                return 1
+            else:
+                return 2
+        elif 3 <= x < 6:
+            if 0 <= y < 3:
+                return 3
+            elif 3 <= y < 6:
+                return 4
+            else:
+                return 5
+        else:
+            if 0 <= y < 3:
+                return 6
+            elif 3 <= y < 6:
+                return 7
+            else:
+                return 8
+```
 ### 2、双向BFS  
 * 思路：从根结点和叶子结点同时开始进行BFS搜索，当结点重合时即完成搜索，最短步数即为左右步数之和  
 ### （1）常见问题解法  
-* 
+* 最小基因变化  
+```
+    def minMutation(self, start: str, end: str, bank: List[str]) -> int:
+        if end not in bank:
+            return -1
+        start_set = {start}
+        end_set = {end}
+        bank = set(bank)
+        length = 0
+        change_map = {'A': 'TCG', 'T': 'ACG', 'C': 'ATG', 'G': 'ATC'}
+        while start_set:
+            length += 1
+            new_set = set()
+            for node in start_set:
+                for i, s in enumerate(node):
+                    for c in change_map[s]:
+                        new = node[:i] + c + node[i + 1:]
+                        if new in end_set:
+                            return length
+                        if new in bank:
+                            new_set.add(new)
+                            bank.remove(new)
+            start_set = new_set
+            if len(end_set) < len(start_set):
+                start_set, end_set = end_set, start_set
+        return -1
+```
 ### 3、启发式搜索  
 * 基于BFS搜索，在代码实现过程中使用优先队列来代替队列以实现一定程度的智能化  
 * 启发式搜索代码模板  
@@ -96,8 +288,34 @@ def AstarSearch(graph, start, end):
 		pq.push(unvisited)
 ```
 ### （1）常见问题解法  
-*  
+*  滑动谜题  
+```
+class Solution:
+    def slidingPuzzle(self, board: List[List[int]]) -> int:
+        s = ''.join(str(c) for row in board for c in row)
+        moves = ((1, 3), (0, 2, 4), (1, 5), (0, 4), (1, 3, 5), (2, 4))
+        if s == "123450":
+            return 0
+        bq, eq, nq, res, visited = {(s, s.index('0'))}, {
+            ("123450", 5)}, set(), 0, set()
 
+        while bq:
+            res += 1
+            visited |= bq
+            for x, ind in bq:
+                for n_ind in moves[ind]:
+                    _x = list(x)
+                    _x[ind], _x[n_ind] = _x[n_ind], _x[ind]
+                    e = (''.join(_x), n_ind)
+                    if e not in visited:
+                        if e in eq:
+                            return res
+                        nq.add(e)
+            bq, nq = nq, set()
+            if len(bq) > len(eq):
+                bq, eq = eq, bq
+        return -1
+```
 ## 四、AVL和红黑树（基于二叉搜索树）  
 *平衡二叉树：左右子树结点平衡* 
 ### 1、AVL树（属于平衡二叉树）  
