@@ -41,7 +41,227 @@
 ### 3、原理  
 * 分别给 { x, y, z} 三个元素分配n个二进制位， 将这些二进制位的并集进行保存， 若查询值的二进制位中有0，则该查询值必不在集合中；若均为1，则该查询值有可能在集合中  
 * 示例：  
+![image](https://github.com/arthurt53/Graph_hub/blob/master/QQ%E5%9B%BE%E7%89%8720200816145435.png)  
+### 4、应用  
+* 比特币网络  
+* 分布式系统（Map-Reduce）  
+* Redis缓存  
+* 垃圾邮件、评论等的过滤  
+### 5、实现代码  
+```
+from bitarray import bitarray 
+import mmh3 
+class BloomFilter: 
+	def __init__(self, size, hash_num): 
+		self.size = size 
+		self.hash_num = hash_num 
+		self.bit_array = bitarray(size) 
+		self.bit_array.setall(0) 
+    
+	def add(self, s): 
+		for seed in range(self.hash_num): 
+			result = mmh3.hash(s, seed) % self.size 
+			self.bit_array[result] = 1 
+      
+	def lookup(self, s): 
+		for seed in range(self.hash_num): 
+			result = mmh3.hash(s, seed) % self.size 
+			if self.bit_array[result] == 0: 
+				return "Nope" 
+		return "Probably" 
+    
+bf = BloomFilter(500000, 7) 
+bf.add("dantezhao") 
+print (bf.lookup("dantezhao")) 
+print (bf.lookup("yyj")) 
+```
+## 三、LRU Cache（缓存）  
+### 1、基础概念  
+* 两个要素：大小、替换策略 - Least Recently Used    
+* 实现方法：Hash table + Double LinkedList  
+* 复杂度：O(1)查询 O(1) 修改、更新  
+* 其他替换策略： LFU - Least Frequently Used等  
+### 2、实现代码  
+```
+class LRUCache(object): 
+
+	def __init__(self, capacity): 
+		self.dic = collections.OrderedDict() 
+		self.remain = capacity
+
+	def get(self, key): 
+		if key not in self.dic: 
+			return -1 
+		v = self.dic.pop(key) 
+		self.dic[key] = v   # key as the newest one 
+		return v 
+
+	def put(self, key, value): 
+		if key in self.dic: 
+			self.dic.pop(key) 
+		else: 
+			if self.remain > 0: 
+				self.remain -= 1 
+			else:   # self.dic is full
+				self.dic.popitem(last=False) 
+		self.dic[key] = value
+    
+ # 哈希表+双向链表实现
+ class DLinkedNode:
+    def __init__(self, key=0, value=0):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
 
 
+class LRUCache:
 
-## 三、LRU Cache    
+    def __init__(self, capacity: int):
+        self.cache = dict()
+        # 使用伪头部和伪尾部节点    
+        self.head = DLinkedNode()
+        self.tail = DLinkedNode()
+        self.head.next = self.tail
+        self.tail.prev = self.head
+        self.capacity = capacity
+        self.size = 0
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        # 如果 key 存在，先通过哈希表定位，再移到头部
+        node = self.cache[key]
+        self.moveToHead(node)
+        return node.value
+
+    def put(self, key: int, value: int) -> None:
+        if key not in self.cache:
+            # 如果 key 不存在，创建一个新的节点
+            node = DLinkedNode(key, value)
+            # 添加进哈希表
+            self.cache[key] = node
+            # 添加至双向链表的头部
+            self.addToHead(node)
+            self.size += 1
+            if self.size > self.capacity:
+                # 如果超出容量，删除双向链表的尾部节点
+                removed = self.removeTail()
+                # 删除哈希表中对应的项
+                self.cache.pop(removed.key)
+                self.size -= 1
+        else:
+            # 如果 key 存在，先通过哈希表定位，再修改 value，并移到头部
+            node = self.cache[key]
+            node.value = value
+            self.moveToHead(node)
+    
+    def addToHead(self, node):
+        node.prev = self.head
+        node.next = self.head.next
+        self.head.next.prev = node
+        self.head.next = node
+    
+    def removeNode(self, node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def moveToHead(self, node):
+        self.removeNode(node)
+        self.addToHead(node)
+
+    def removeTail(self):
+        node = self.tail.prev
+        self.removeNode(node)
+        return node
+```
+## 四、排序算法  
+### 1、常用排序算法  
+（1） 比较类排序：通过比较来决定元素间的相对次序，时间复杂度最低为O(nlogn）  
+* 交换排序：冒泡排序 O(n^2)、快速排序 O(nlogn)  
+*冒泡排序：嵌套循环，每次查看相邻的元素如果逆序，则交换*  
+*快速排序：数组取标杆piovt，将小元素放在piovt左边，大元素放右侧，然后依次对左边和右边的子数组继续快排，以达到整个序列有序*  
+* 插入排序：简单插入排序 O(n^2)、希尔排序 O(n^1.3)   
+*简单插入排序：从前往后逐步构建有序数组；对于未排序数据，在已排序序列中从后向前扫描，找到相应位置并插入*  
+* 选择排序：简单选择排序 O(n^2)、堆排序 O(nlogn)   
+*简单选择排序：每次找到最小值，然后放在待排序数组的起始位置*  
+*堆排序：数组元素依次建立小顶堆，依次取堆顶元素，并删除*  
+* 归并排序O(nlogn)：二路归并排序、多路归并排序  
+*a、把长度为n的输入序列分成两个长度为n/2的子序列*  
+*b、对两个子序列分别采用归并排序*  
+*c、将两个排序好的子序列合并成一个最终的排序序列*  
+（2） 非比较累排序：不通过比较来决定元素间的相对次序，可以突破基于比较排序的时间下界，以线性时间运行，一般只能用于整形的元素  
+* 计数排序、桶排序、基数排序  
+### 2、常用排序代码  
+* 快速排序：  
+```
+def quick_sort(begin, end, nums):
+    if begin >= end:
+        return
+    pivot_index = partition(begin, end, nums)
+    quick_sort(begin, pivot_index-1, nums)
+    quick_sort(pivot_index+1, end, nums)
+    
+def partition(begin, end, nums):
+    pivot = nums[begin]
+    mark = begin
+    for i in range(begin+1, end+1):
+        if nums[i] < pivot:
+            mark +=1
+            nums[mark], nums[i] = nums[i], nums[mark]
+    nums[begin], nums[mark] = nums[mark], nums[begin]
+    return mark
+```
+* 归并排序：  
+```
+def mergesort(nums, left, right):
+    if right <= left:
+        return
+    mid = (left+right) >> 1
+    mergesort(nums, left, mid)
+    mergesort(nums, mid+1, right)
+    merge(nums, left, mid, right)
+
+def merge(nums, left, mid, right):
+    temp = []
+    i = left
+    j = mid+1
+    while i <= mid and j <= right:
+        if nums[i] <= nums[j]:
+            temp.append(nums[i])
+            i +=1
+        else:
+            temp.append(nums[j])
+            j +=1
+    while i<=mid:
+        temp.append(nums[i])
+        i +=1
+    while j<=right:
+        temp.append(nums[j])
+        j +=1
+    nums[left:right+1] = temp
+```
+* 堆排序：  
+```
+def heapify(parent_index, length, nums):
+    temp = nums[parent_index]
+    child_index = 2*parent_index+1
+    while child_index < length:
+        if child_index+1 < length and nums[child_index+1] > nums[child_index]:
+            child_index = child_index+1
+        if temp > nums[child_index]:
+            break
+        nums[parent_index] = nums[child_index]
+        parent_index = child_index
+        child_index = 2*parent_index + 1
+    nums[parent_index] = temp
+
+
+def heapsort(nums):
+    for i in range((len(nums)-2)//2, -1, -1):
+        heapify(i, len(nums), nums)
+    for j in range(len(nums)-1, 0, -1):
+        nums[j], nums[0] = nums[0], nums[j]
+        heapify(0, j, nums)
+```
+### 3、常见问题的解法  
