@@ -29,7 +29,35 @@
 * x & -x 得到最低位的1  
 * x & ~x = 0  
 ### 4、常见问题的解法  
-* 
+* 位 1 的个数  
+```
+class Solution:
+    def hammingWeight(self, n: int) -> int:
+        count = 0
+        while n > 0:
+            n &= (n - 1)
+            count += 1
+        return count
+```
+* 2 的幂  
+```
+class Solution:
+    def isPowerOfTwo(self, n: int) -> bool:
+        return n > 0 and n & (n - 1) == 0
+```
+* 颠倒二进制位  
+```
+def reverseBits(self , n):
+    ans , MASK = 0, 1
+
+    for i in range(32):
+        if n & MASK:
+            ans |= 1 << (31 - i)
+        MASK <<= 1
+
+    return ans
+```
+
 ## 二、布隆过滤器  
 *类似于哈希表，但布隆过滤器实现的是模糊查询*  
 ### 1、基础概念  
@@ -191,7 +219,9 @@ class LRUCache:
 *b、对两个子序列分别采用归并排序*  
 *c、将两个排序好的子序列合并成一个最终的排序序列*  
 （2） 非比较累排序：不通过比较来决定元素间的相对次序，可以突破基于比较排序的时间下界，以线性时间运行，一般只能用于整形的元素  
-* 计数排序、桶排序、基数排序  
+* 计数排序：计数排序要求输入的数据必须是有确定范围的整数。将输入的数据值转化为键存储在额外开辟的数组空间中；然后依次把计数大于 1 的填充回原数组  
+* 桶排序：假设输入数据服从均匀分布，将数据分到有限数量的桶里，每个桶再分别排序（有可能再使用别的排序算法或是以递归方式继续使用桶排序进行排  
+* 基数排序：按照低位先排序，然后收集；再按照高位排序，然后再收集；依次类推，直到最高位。有时候有些属性是有优先级顺序的，先按低优先级排序，再按高优先级排序   
 ### 2、常用排序代码  
 * 快速排序：  
 ```
@@ -264,4 +294,77 @@ def heapsort(nums):
         nums[j], nums[0] = nums[0], nums[j]
         heapify(0, j, nums)
 ```
+* 冒泡排序：  
+```
+def bubble_sort(nums):
+
+    for i in range(len(nums) - 1):  
+        ex_flag = False  
+        for j in range(len(nums) - i - 1):  
+            
+            if nums[j] > nums[j + 1]:
+                nums[j], nums[j + 1] = nums[j + 1], nums[j]
+                ex_flag = True
+        if not ex_flag:
+            return nums  
+	    
+    return nums  
+```
+* 选择排序：  
+```
+def selection_sort(arr):
+	for i in range(len(arr) - 1):
+		min_index = i
+		for j in range(i + 1, len(arr)):
+        		if arr[j] < arr[min_index]:
+                		min_index = j
+		arr[min_index], arr[i] = arr[i], arr[min_index]
+	return arr
+```
+* 插入排序：  
+```
+def insertionSort(arr): 
+  
+    for i in range(1, len(arr)): 
+  
+        key = arr[i] 
+  
+        j = i-1
+        while j >=0 and key < arr[j] : 
+                arr[j+1] = arr[j] 
+                j -= 1
+        arr[j+1] = key 
+```
 ### 3、常见问题的解法  
+* 数组的相对排序  
+```
+class Solution:
+    def relativeSortArray(self, arr1: List[int], arr2: List[int]) -> List[int]:
+        in_arr2 = []
+        not_in_arr2 = []
+        Hash = {}
+        for i in arr1:
+            Hash[i] = Hash.get(i, 0) + 1
+        arr1 = set(arr1)
+        for j in arr1:
+            if j not in arr2:
+                not_in_arr2 += [j]*Hash[j]
+        not_in_arr2.sort()
+        for k in arr2:
+            in_arr2 += [k]*Hash[k]
+        return in_arr2+not_in_arr2
+```
+* 合并区间  
+```
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        if not intervals: return []
+        intervals.sort()
+        res = [intervals[0]]
+        for x, y in intervals[1:]:
+            if res[-1][1] < x:
+                res.append([x, y])
+            else:
+                res[-1][1] = max(y, res[-1][1])
+        return res
+```
